@@ -1,0 +1,63 @@
+<html>
+<body>
+<div ng-app="myApp">
+  <div ng-controller="ClickToEditCtrl">
+    <div ng-hide="editorEnabled">
+      {{title}}
+      <a href="#" ng-click="editorEnabled=!editorEnabled">Edit title</a>
+    </div>
+    <table border="1px">
+       <tr class="head">
+          <td>Id</td>
+          <td>Name</td>
+          <td>Login</td>
+          <td>Image</td>
+       </tr>
+       <tr  ng-repeat="item in data">
+          <td>{{item.id}}</td>
+          <td>{{item.name}}</td>
+          <td>{{item.owner.login}}</td>          
+          <td><img src="{{item.owner.avatar_url}}" style="width:50px;height:50px;"/></td>
+       </tr>
+    </table>
+    <div ng-show="editorEnabled">
+      <input ng-model="title">
+      <a href="#" ng-click="editorEnabled=!editorEnabled">Done editing?</a>
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+<script type="text/javascript">
+angular.module("myApp",[])
+.controller("ClickToEditCtrl", function($scope,myFactory) {
+  $scope.title = "Welcome to this demo!";
+  myFactory.getItem().then(
+    function(data){
+        $scope.data = data;
+    },
+    function(error){
+      alert(error);
+    }
+  );
+})
+.constant('DATA_URL','https://api.github.com/users/mralexgray/repos')
+.factory("myFactory",function($http,DATA_URL,$q){
+	function getItem(){
+  			var deferred = $q.defer();
+        $http({method:'GET',url:DATA_URL}).success(function(data){
+        	deferred.resolve(data);
+        })
+        .error(function(error){
+        	deferred.reject(error);
+        })
+        
+        return deferred.promise;
+    }
+  return {
+  	getItem:getItem
+  };
+
+})
+</script>
+</body>
+</html>
